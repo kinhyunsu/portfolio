@@ -32,7 +32,13 @@ interface Project {
   tags: string[];
   results: string[];
   roles?: string[];
-  troubleshooting?: string;
+  troubleshooting?: {
+    title: string;
+    problem: string;
+    cause: string;
+    solution: string;
+    result: string;
+  };
   collaboration?: string;
   link?: string;
   images?: string[];
@@ -61,46 +67,60 @@ const SKILLS: Skill[] = [
 const PROJECTS: Project[] = [
   {
     id: 1,
-    title: "High-tension(C2C 기반 물류 이커머스 시스템)",
-    description: "MSA 환경에서 일관성 있는 주문-결제 흐름을 위해 Saga 오케스트레이션을 적용한 백엔드 프로젝트입니다.",
-    longDescription: "단일 트랜잭션으로 처리할 수 없는 주문-결제-재고-쿠폰 흐름을 MSA 환경에서 일관성 있게 처리하기 위해 Saga 오케스트레이션으로 설계되었습니다. 결제 도메인의 안정성과 멱등성을 확보하는 데 중점을 둔 프로젝트입니다.",
-    tags: ["Java", "Spring Boot", "MSA", "Redis", "Saga Pattern", "Kafka", "PostgreSQL", "AWS"],
-    link: "https://github.com/sharedeffort/high-tension",
+    title: "High-Tension - Saga 기반 분산 트랜잭션 C2C 쇼핑 플랫폼",
+    description: "주문-결제-재고-쿠폰 서비스가 분리된 MSA 환경에서 Saga 패턴을 통해 데이터 일관성을 확보한 C2C 플랫폼입니다.",
+    longDescription: "MSA 구조에서 발생하는 분산 트랜잭션 문제를 해결하기 위해 Saga 오케스트레이션 패턴을 도입했습니다. Kafka 기반의 이벤트 드리븐 아키텍처를 설계하고, 특히 결제 시스템의 안정성과 멱등성을 보장하는 데 집중하여 개발했습니다.",
+    tags: ["Spring Boot", "Java", "MSA", "Kafka", "MySQL", "Saga Pattern"],
+    link: "https://github.com/kinhyunsu/high_tension_payment",
     roles: [
-      "Payment Service 전체 아키텍처 설계 및 구현",
-      "Saga 기반 결제 생성 및 실패 보상 트랜잭션 로직 구현",
-      "주문 서비스 연동 및 내부 결제 데이터 검증 로직 개발",
-      "Kafka 기반 결제 이벤트 Consumer & Producer 구축",
-      "멱등성 처리 및 중복 결제 방지 구조 설계"
+      "Payment Service 전체 설계 및 구현",
+      "Saga 기반 결제 흐름 설계 (Orchestration)",
+      "Kafka Consumer / Producer 구현 및 이벤트 연동",
+      "결제 멱등성 처리 및 중복 결제 방지 로직 설계"
     ],
     results: [
-      "Saga 기반 결제 생성 자동화: 주문 후 재고 차감 성공 시 결제가 자동 생성되는 이벤트 기반 구조로 개선",
-      "결제 Saga 멱등성 보장: DB UNIQUE 제약 및 Saga 상태 관리를 통해 Kafka의 중복 메시지 전달 이슈 방어",
-      "시스템 안정성 확보: 결제 누락 및 중복 결제 발생 가능성을 원천적으로 차단하는 견고한 로직 구축"
+      "분산 트랜잭션 해결: Saga 기반 구조 도입으로 주문-재고-결제 서비스 간의 데이터 일관성을 완벽히 보장",
+      "결제 안정성 확보: 멱등성 처리 로직을 통해 Kafka의 중복 메시지 전달 상황에서도 중복 결제를 원천 차단",
+      "시스템 결합도 감소: 서비스 간 직접 호출을 제거하고 Kafka 이벤트 기반 비동기 구조로 전환하여 확장성 향상",
+      "도메인 책임 분리: 결제 도메인의 책임을 명확히 정의하고 집중시켜 유지보수성이 뛰어난 아키텍처 수립"
     ],
-    troubleshooting: "동일 sagaId로 결제가 중복 생성되는 이슈를 발견했습니다. 원인은 동일 Kafka 토픽을 서로 다른 Consumer Group이 동시에 구독하여 중복 소비가 발생한 것이었습니다. 이를 해결하기 위해 결제 서비스 내 Consumer를 단일화하고, Saga 멱등성 처리 로직을 강화하여 시스템의 원자성을 확보했습니다.",
-    collaboration: "결제 생성 시점을 직접 호출로 할지 이벤트 기반으로 할지에 대한 팀 내 의견 충돌이 있었습니다. MSA 원칙과 Saga Pattern의 기술적 장점을 정리하여 공유했고, 도메인 간의 결합도를 낮추어야 한다는 근거로 팀원들을 설득하여 이벤트 기반의 Saga 구조를 도입하는 합의를 이끌어냈습니다."
+    troubleshooting: {
+      title: "Kafka 중복 소비로 인한 결제 Saga 중복 생성 이슈",
+      problem: "Kafka 메시지 중복 소비로 인해 동일한 sagaId에 대한 결제가 2회 생성되는 문제가 발생했습니다.",
+      cause: "동일한 Kafka 토픽을 서로 다른 Consumer Group이 동시에 구독하여 중복 처리가 발생했고, 애플리케이션 레벨의 멱등성 고려가 부족했습니다.",
+      solution: "Consumer Group을 단일화하고, sagaId 기반의 멱등성 처리 로직(DB UNIQUE 제약 + 상태 체크)을 강화했습니다.",
+      result: "중복 메시지 유입 상황에서도 결제가 단 1회만 수행되도록 시스템의 원자성과 안정성을 확보했습니다."
+    },
+    collaboration: "결제 생성 주체에 대한 팀 내 기술적 논의 과정에서, MSA 원칙과 Saga 패턴의 장점을 바탕으로 이벤트 기반 구조의 필요성을 설득했습니다. 결제 도메인이 결제를 책임져야 한다는 기준을 제시하여 도메인 경계를 명확히 하고 서비스 독립성을 강화하는 합의를 이끌어냈습니다."
   },
   {
     id: 2,
-    title: "Gabom-Project (위치 기반 탐험 플랫폼)",
-    description: "위치 인증을 게임처럼 즐기고, 방문 경험이 보상이 되는 탐험 플랫폼입니다.",
-    longDescription: "실제 서비스로 확장 가능한 수준의 위치 기반 인증 플랫폼입니다. 탐험 장소를 확인하고 실제 위치에서 인증글을 남기면 즉시 결과를 확인할 수 있으며, 사용자 행동이 리워드로 전환되는 위치 기반 서비스를 목표로 했습니다.",
-    tags: ["Java", "Spring", "MySQL", "WebSocket", "STOMP", "Git"],
+    title: "가봄? (Gabom) - 위치 기반 탐험 및 인증 플랫폼",
+    description: "단순한 지도 서비스를 넘어, GPS 기반 방문 인증을 통해 신뢰할 수 있는 경험을 공유하는 탐험 플랫폼입니다.",
+    longDescription: "기존 지도 및 리뷰 서비스의 광고성 정보 문제를 해결하기 위해, 실제 방문 인증(GPS) 기반의 탐험 피드를 구축했습니다. 사용자가 장소를 탐험하고 인증을 남기면 보상과 랭킹을 제공하여 자발적인 참여를 유도하는 서비스입니다. 백엔드 아키텍처 설계와 실시간 알림 시스템 구축을 전담했습니다.",
+    tags: ["Spring Boot", "JPA", "MySQL", "WebSocket", "STOMP", "JWT"],
     link: "https://github.com/final-gabom/gabom-project",
     roles: [
-      "탐험 장소 등록/조회 및 실시간 위치 정합성 검증 API 개발",
-      "미션 인증글 CRUD 및 사용자 생성 콘텐츠(UGC) 구조 설계",
-      "WebSocket & STOMP 기반 실시간 알림 시스템 구축",
-      "MySQL Bounding Box 최적화를 통한 위치 데이터 검색 성능 향성"
+      "백엔드 전반 아키텍처 설계 및 API 구현",
+      "JWT 기반 보안 인증/인가 시스템 구축",
+      "Haversine 공식을 활용한 위치 기반 거리 계산 로칭 구현",
+      "WebSocket & STOMP 기반 실시간 알림 시스템 설계",
+      "미션 상태 흐름 및 핵심 비즈니스 로직 개발"
     ],
     results: [
-      "거리 계산 최적화: MySQL 하버사인 공식과 Bounding Box를 활용하여 응답 시간을 300ms 수준으로 단축",
-      "실시간 알림 안정화: 구독 경로 분석 및 재구조화를 통해 메시지 수신 이슈를 해결하고 알림 전송 성공률 확보",
-      "협업 프로세스 수립: 커밋 단위 세분화 및 Git 브랜치 전략 도입으로 6인 협업 환경의 충돌과 병목 현상 최소화"
+      "실시간 피드백 강화: WebSocket 기반 알림 도입으로 퀘스트 완료 및 포인트 지급 등 사용자 이벤트 반응성 즉각 구현",
+      "위치 기반 탐색 고도화: Haversine 공식을 적용하여 사용자 반경 내 장소 정렬 및 필터링 기능 구현으로 UX 개선",
+      "데이터 무결성 확보: 미션 상태(TODO → IN_PROGRESS → DONE) 흐름에 대한 엄격한 제어 로직으로 비즈니스 안정성 확보",
+      "API 보안 최적화: JWT를 활용한 사용자 식별 및 접근 제어로 대규모 요청 처리를 위한 인증 구조 설계"
     ],
-    troubleshooting: "초기 서버 레벨에서 수행하던 거리 계산으로 인해 조회 지연이 발생했습니다. 이를 해결하기 위해 MySQL의 하버사인 공식을 DB 레벨에서 호출하도록 개선하고, Bounding Box 영역 검색 최적화를 추가 적용하여 대량의 위치 데이터 조회 성능을 비약적으로 개선했습니다.",
-    collaboration: "프로젝트 방향성을 두고 '확장성'과 '속도' 사이의 팀 내 갈등이 있었으나, 목표를 '안정적인 시연'으로 재정의하여 협의점을 찾았습니다. 또한 복잡한 머지 충돌 문제를 해결하기 위해 커밋 단위를 최소화하고 정기적인 동기화 원칙을 세워 팀원 모두가 신뢰할 수 있는 개발 효율을 이끌어냈습니다."
+    troubleshooting: {
+      title: "WebSocket 실시간 메시지 수신 실패 이슈",
+      problem: "WebSocket 연결은 성공했지만 실시간 메시지가 수신되지 않는 문제가 발생했습니다.",
+      cause: "STOMP 헤더의 Principal 설정 누락으로 인한 사용자 식별 실패와 /user destination prefix와 구독 경로 불일치가 원인이었습니다.",
+      solution: "STOMP 헤더 기반으로 userId를 Principal에 매핑하는 인터셉터를 구현하고, destination 구조를 /user/queue/...로 수정했습니다.",
+      result: "SimpMessagingTemplate의 convertAndSendToUser 방식을 적용하여 사용자별 정확한 메시지 전달을 성공시켰습니다."
+    },
+    collaboration: "프로젝트 방향성을 두고 '확장성'과 '속도' 사이의 팀 내 갈등이 있었으나, 목표를 '안정적인 시연'으로 재정의하여 협의점을 찾았습니다. 또한 복잡한 머지 충될 문제를 해결하기 위해 커밋 단위를 최소화하고 정기적인 동기화 원칙을 세워 개발 효율을 이끌어냈습니다."
   }
 ];
 
@@ -417,14 +437,36 @@ const ProjectModal = ({
               <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
               Technical Challenge
             </h4>
-            <div className="p-8 bg-orange-50/40 border border-orange-500/10 rounded-[2.5rem]">
+            <div className="p-8 bg-orange-50/40 border border-orange-500/10 rounded-[2.5rem] space-y-8">
               <div className="flex gap-4 items-start">
                 <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center flex-shrink-0 shadow-sm mt-1">
                   <AlertCircle className="w-5 h-5 text-orange-500" />
                 </div>
-                <p className="text-brand-primary leading-relaxed break-keep text-lg font-medium">
-                  {project.troubleshooting}
-                </p>
+                <div className="space-y-6">
+                  <h5 className="text-xl font-bold text-brand-primary">{project.troubleshooting.title}</h5>
+                  
+                  <div className="grid gap-6">
+                    <div className="space-y-2">
+                      <div className="text-xs font-mono uppercase tracking-wider text-orange-600 font-bold">[ Problem ]</div>
+                      <p className="text-brand-secondary leading-relaxed break-keep">{project.troubleshooting.problem}</p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="text-xs font-mono uppercase tracking-wider text-orange-600 font-bold">[ Cause ]</div>
+                      <p className="text-brand-secondary leading-relaxed break-keep">{project.troubleshooting.cause}</p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="text-xs font-mono uppercase tracking-wider text-orange-600 font-bold">[ Solution ]</div>
+                      <p className="text-brand-secondary leading-relaxed break-keep">{project.troubleshooting.solution}</p>
+                    </div>
+                    
+                    <div className="p-4 bg-white/60 rounded-2xl border border-orange-200/50">
+                      <div className="text-xs font-mono uppercase tracking-wider text-emerald-600 font-bold mb-1">👉 Result</div>
+                      <p className="text-brand-primary font-bold break-keep">{project.troubleshooting.result}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
