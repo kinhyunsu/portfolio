@@ -624,17 +624,13 @@ const Education = () => (
           <div className="p-8 md:p-12 bg-brand-surface rounded-[3rem]">
             <h4 className="mono-label mb-8">Quick Facts</h4>
             <ul className="space-y-6">
-              <li className="flex justify-between items-center border-b border-brand-primary/10 pb-4">
+              <li className="flex justify-between items-center border-b border-brand-primary/10 pb-4 text-sm md:text-base">
                 <span className="text-brand-secondary">Awards</span>
                 <span className="font-medium">Co-show (입상)</span>
               </li>
-              <li className="flex justify-between items-center border-b border-brand-primary/10 pb-4">
+              <li className="flex justify-between items-center pb-4 text-sm md:text-base">
                 <span className="text-brand-secondary">Global Experience</span>
                 <span className="font-medium">중국 해외연수</span>
-              </li>
-              <li className="flex justify-between items-center border-b border-brand-primary/10 pb-4">
-                <span className="text-brand-secondary">Availability</span>
-                <span className="font-medium text-emerald-500">Open for Collaborations</span>
               </li>
             </ul>
             
@@ -693,13 +689,12 @@ const Contact = () => (
 );
 
 const Footer = () => (
-  <footer className="py-12 px-6 border-t border-brand-primary/5 bg-white">
-    <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-      <div className="mono-label">© 2024 KIM HYUNSU. All rights reserved.</div>
-      <div className="flex gap-8 mono-label">
-        <a href="#" className="hover:text-brand-accent">Github</a>
-        <a href="#" className="hover:text-brand-accent">Resume</a>
+  <footer className="py-16 px-6 border-t border-brand-primary/5 bg-white">
+    <div className="max-w-7xl mx-auto flex flex-col items-center gap-8">
+      <div className="flex gap-12 mono-label text-sm uppercase tracking-widest opacity-60">
+        <a href="https://github.com/kinhyunsu" className="hover:text-brand-accent transition-colors">Github</a>
       </div>
+      <div className="text-[10px] mono-label opacity-30 mt-4 tracking-[0.2em]">CRAFTED BY KIM HYUNSU</div>
     </div>
   </footer>
 );
